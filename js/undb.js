@@ -1,5 +1,4 @@
-// this uses object.keys
-// which is isn't in IE < 9
+// todo: use polyfill for IE < 9 support for object.keys()
 
 function Init(name) {
 	return {
@@ -81,4 +80,5 @@ module.exports = {
 	Get: Get,
 	Keys: Keys,
 	Exec: Exec
-}
+};
+

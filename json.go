@@ -1,4 +1,4 @@
-package gorp
+package undb
 
 import (
 	"encoding/json"
