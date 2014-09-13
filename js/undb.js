@@ -60,7 +60,7 @@ function Exec(store, op) {
 		return [undefined, undefined];
 	case "Get":
 		var ve = Get(store, op.Name);
-		if !ve[1] {
+		if(!ve[1]) {
 			return [undefined, undefined];
 		}
 		return [ve[0], undefined];
