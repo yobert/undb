@@ -2,36 +2,69 @@ package undb
 
 import (
 	"errors"
+	"encoding/json"
+)
+
+type OpMethodType int
+func (method OpMethodType) String() string {
+	switch method {
+	case INSERT: return "INSERT"
+	case DELETE: return "DELETE"
+	case UPDATE: return "UPDATE"
+	case MERGE: return "MERGE"
+	}
+	return "INVALID"
+}
+
+const (
+	INVALIDOPMETHOD OpMethodType = iota
+	INSERT
+	DELETE
+	UPDATE
+	MERGE
 )
 
 type Op struct {
-	Method string
-	Name string
-	Record interface{}
+	Method OpMethodType
+	Path string
+
+	Name	string `json:"Name,omitempty"`
+	Type	StoreType `json:"Type,omitempty"`
+	Values map[string]interface{} `json:"Values,omitempty"`
+
+	changesource string
 }
 
-func (store *Store) Exec(op *Op) (interface{}, error) {
-	switch op.Method {
-	case "Insert":
-		return nil, store.Insert(op.Name, op.Record)
-	case "Update":
-		return nil, store.Update(op.Name, op.Record)
-	case "Upsert":
-		store.Upsert(op.Name, op.Record)
-		return nil, nil
-	case "Delete":
-		store.Delete()
-		return nil, nil
-	case "Get":
-		v, exists := store.Get(op.Name)
-		if !exists {
-			return nil, nil
-		}
-		return v, nil
-	case "Keys":
-		v := store.Keys()
-		return v, nil
+func (op *Op) Copy() (out Op) {
+	// TODO a more efficient deep copy
+	j, err := json.Marshal(op)
+	if err != nil {
+		panic(err)
+	}
+	err = json.Unmarshal(j, &out)
+	if err != nil {
+		panic(err)
+	}
+	return
+}
+
+func (store *Store) Exec(op *Op, source string) error {
+	s := store.Find(op.Path)
+	if s == nil {
+		return errors.New("Exec on store '" + store.Name + "' failed: Find path '" + op.Path + "' failed")
 	}
 
-	return nil, errors.New("invalid method: '" + op.Method + "'")
+	switch(op.Method) {
+	case INSERT:
+		return s.Insert(New(op.Name, op.Type), source)
+	case DELETE:
+		s.Delete(source)
+		return nil
+	case UPDATE:
+		return s.Update(op.Values, source)
+	case MERGE:
+		return s.Merge(op.Values, source)
+	}
+	return errors.New("Exec on store '" + store.Name + "' failed: Invalid method: '" + op.Method.String() + "'")
 }
+

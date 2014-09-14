@@ -2,59 +2,146 @@ package undb
 
 import (
 	"errors"
+	"strconv"
+	"strings"
+	"sync"
+)
+
+type StoreType int
+func (s StoreType) String() string {
+	switch s {
+	case STORES: return "STORES"
+	case VALUES: return "VALUES"
+	}
+	return "INVALID"
+}
+
+const (
+	INVALIDSTORETYPE StoreType = iota
+	STORES
+	VALUES
 )
 
 type Store struct {
 	Name string
+	Type StoreType
 	Records map[string]interface{}
 	Deleted bool
+
+	next int
+	parent *Store
+
+	lock sync.RWMutex	`json:-`
+	listeners map[chan Op]struct{}
 }
 
-// Init() initializes a new root database object
-func Init(name string) *Store {
+func (store *Store) Lock() {
+	store.lock.Lock()
+}
+func (store *Store) Unlock() {
+	store.lock.Unlock()
+}
+func (store *Store) RLock() {
+	store.lock.RLock()
+}
+func (store *Store) RUnlock() {
+	store.lock.RUnlock()
+}
+
+func New(name string, typ StoreType) *Store {
 	s := Store{
 		Name: name,
+		Type: typ,
 		Records: make(map[string]interface{}),
 	}
 	return &s
 }
 
-func (store *Store) Insert(name string, record interface{}) error {
-	_, exists := store.Records[name]
+func (store *Store) Insert(insert *Store, source string) error {
+	_, exists := store.Records[insert.Name]
 	if exists {
-		return errors.New("Insert into store '" + store.Name + "' failed: '" + name + "' already exists")
+		return errors.New("Insert into store '" + store.Name + "' failed: '" + insert.Name + "' already exists")
 	}
-	store.Records[name] = record
+
+	insert.parent = store
+	store.Records[insert.Name] = insert
+	store.Emit(&Op{Method: INSERT, Name: insert.Name, Type: insert.Type}, source);
 	return nil
 }
 
-func (store *Store) Update(name string, record interface{}) error {
-	_, exists := store.Records[name]
-	if !exists {
-		return errors.New("Update store '" + store.Name + "' failed: '" + name + "' does not exist")
-	}
-	store.Records[name] = record
-	return nil
-}
-
-func (store *Store) Upsert(name string, record interface{}) {
-	store.Records[name] = record
-}
-
-func (store *Store) Delete() {
+func (store *Store) Delete(source string) {
 	store.Deleted = true
+	store.Emit(&Op{Method: DELETE}, source)
 }
 
-func (store *Store) Get(name string) (interface{}, bool) {
-	v, exists := store.Records[name]
-	return v, exists
-}
-
-func (store *Store) Keys() []string {
-	v := make([]string, len(store.Records))
-	i := 0
-	for k, _ := range store.Records {
-		v[i] = k
+func (store *Store) Update(values map[string]interface{}, source string) error {
+	if store.Type != VALUES {
+		return errors.New("Update store '" + store.Name + "' failed: not a VALUES store")
 	}
-	return v
+	store.Records = values
+	store.Emit(&Op{Method: UPDATE, Values: values}, source)
+	return nil
 }
+
+func (store *Store) Merge(values map[string]interface{}, source string) error {
+	if store.Type != VALUES {
+		return errors.New("Merge store '" + store.Name + "' failed: not a VALUES store")
+	}
+	for k, v := range values {
+		store.Records[k] = v
+	}
+	store.Emit(&Op{Method: MERGE, Values: values}, source)
+	return nil
+}
+
+func (store *Store) Path() string {
+	path := store.Name
+	parent := store.parent
+	for parent != nil {
+		path = parent.Name + "." + path
+		parent = parent.parent
+	}
+	return path
+}
+
+func (store *Store) FindOrPanic(path string) *Store {
+	s := store.Find(path)
+	if s == nil {
+		panic("Find on store '" + store.Name + "' failed: Find path '" + path + "' failed")
+	}
+	return s
+}
+
+func (store *Store) Find(path string) *Store {
+	chunks := strings.Split(path, ".")
+	if(len(chunks) < 1 || chunks[0] != store.Name) {
+		return nil
+	}
+
+	s := store
+	for i, k := range chunks {
+		if i == 0 {
+			continue
+		}
+
+		if s.Type != STORES {
+			return nil
+		}
+		v, ok := s.Records[k]
+		if !ok {
+			return nil
+		}
+		s, ok = v.(*Store)
+		if !ok {
+			return nil
+		}
+	}
+
+	return s
+}
+
+func (store *Store) Seq() string {
+	store.next++
+	return strconv.Itoa(store.next)
+}
+
