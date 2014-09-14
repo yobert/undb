@@ -17,6 +17,13 @@ func (store *Store) ws_setup(ops *[]Op, opchan chan Op) {
 	store.Listen(opchan)
 }
 
+func (store *Store) ws_cleanup(opchan chan Op) {
+	store.Lock()
+	defer store.Unlock()
+
+	store.Unlisten(opchan)
+}
+
 func (store* Store) ws_exec(ops []Op, source string) error {
 	store.Lock()
 	defer store.Unlock()
@@ -47,11 +54,7 @@ func (store *Store) Websocket() func(*websocket.Conn) {
 		// locks and with defer.  lock/unlock is required for
 		// store.Unlisten()
 		store.ws_setup(&ops, opchan)
-		defer func() {
-			store.Lock()
-			store.Unlisten(opchan)
-			store.Unlock()
-		}()
+		defer store.ws_cleanup(opchan)
 
 		j, err := json.Marshal(ops)
 		if err != nil {
@@ -61,6 +64,7 @@ func (store *Store) Websocket() func(*websocket.Conn) {
 
 		go func() {
 			defer close(opchan)
+			defer store.ws_cleanup(opchan) // double cleanup is ok
 
 			for {
 				_, msgdata, err := ws.ReadMessage()
