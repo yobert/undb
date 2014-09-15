@@ -104,7 +104,8 @@ Store.prototype.FindOrThrow = function(path) {
 
 Store.prototype.Seq = function() {
 	this.next++;
-	return('jsid_' + new Date().getTime() + this.next);
+	// sloppy hack for the moment
+	return('jsid_' + new Date().getTime() + this.next + Math.floor(Math.random() * 100000));
 }
 
 Store.prototype.Exec = function(op, changesource) {
