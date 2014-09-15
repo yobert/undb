@@ -4,7 +4,6 @@ import (
 	"github.com/gorilla/websocket"
 	"encoding/json"
 	"fmt"
-	"io"
 )
 
 var next_ws_id = 0
@@ -69,16 +68,8 @@ func (store *Store) Websocket() func(*websocket.Conn) {
 			for {
 				_, msgdata, err := ws.ReadMessage()
 				if err != nil {
-					if err == websocket.ErrCloseSent {
-						return
-					}
-					if err == io.EOF {
-						return
-					}
-					if err == io.ErrUnexpectedEOF {
-						return
-					}
-					panic(err)
+					//fmt.Println(err.Error()) // don't really care
+					return
 				}
 
 				var opslice []Op
