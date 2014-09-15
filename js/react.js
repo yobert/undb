@@ -19,7 +19,9 @@ var mixin = {
 		delete this._grabs;
 	},
 	storeUpdated: function() {
-		this.forceUpdate(this.storeUpdateFinished);
+		if(this.isMounted()) {
+			this.forceUpdate(this.storeUpdateFinished);
+		}
 	},
 	grab: function(path) {
 		if(!this.store)
