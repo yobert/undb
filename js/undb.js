@@ -146,6 +146,25 @@ Store.prototype.emitChange = function(op, changesource) {
 	}
 }
 
+Store.prototype.each = function(cb) {
+	var k, v;
+	if(this.Type == STORES) {
+		for(k in this.Records) {
+			v = this.Records[k];
+			cb(v, v.Records);
+		}
+		return;
+	}
+	if(this.Type == VALUES) {
+		for(k in this.Records) {
+			v = this.Records[k];
+			cb(k, v);
+		}
+		return;
+	}
+	throw("each() on store '" + this.Id + "' failed: Invalid Type: '" + this.Type + "'");
+}
+
 module.exports = {
 	STORES: STORES,
 	VALUES: VALUES,
