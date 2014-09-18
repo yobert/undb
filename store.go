@@ -23,7 +23,7 @@ const (
 )
 
 type Store struct {
-	Name string
+	Id string
 	Type StoreType
 	Records map[string]interface{}
 	Deleted bool
@@ -48,9 +48,9 @@ func (store *Store) RUnlock() {
 	store.lock.RUnlock()
 }
 
-func New(name string, typ StoreType) *Store {
+func New(id string, typ StoreType) *Store {
 	s := Store{
-		Name: name,
+		Id: id,
 		Type: typ,
 		Records: make(map[string]interface{}),
 	}
@@ -58,14 +58,14 @@ func New(name string, typ StoreType) *Store {
 }
 
 func (store *Store) Insert(insert *Store, source string) error {
-	_, exists := store.Records[insert.Name]
+	_, exists := store.Records[insert.Id]
 	if exists {
-		return errors.New("Insert into store '" + store.Name + "' failed: '" + insert.Name + "' already exists")
+		return errors.New("Insert into store '" + store.Id + "' failed: '" + insert.Id + "' already exists")
 	}
 
 	insert.parent = store
-	store.Records[insert.Name] = insert
-	store.Emit(&Op{Method: INSERT, Name: insert.Name, Type: insert.Type}, source);
+	store.Records[insert.Id] = insert
+	store.Emit(&Op{Method: INSERT, Id: insert.Id, Type: insert.Type}, source);
 	return nil
 }
 
@@ -76,7 +76,7 @@ func (store *Store) Delete(source string) {
 
 func (store *Store) Update(values map[string]interface{}, source string) error {
 	if store.Type != VALUES {
-		return errors.New("Update store '" + store.Name + "' failed: not a VALUES store")
+		return errors.New("Update store '" + store.Id + "' failed: not a VALUES store")
 	}
 	store.Records = values
 	store.Emit(&Op{Method: UPDATE, Values: values}, source)
@@ -85,7 +85,7 @@ func (store *Store) Update(values map[string]interface{}, source string) error {
 
 func (store *Store) Merge(values map[string]interface{}, source string) error {
 	if store.Type != VALUES {
-		return errors.New("Merge store '" + store.Name + "' failed: not a VALUES store")
+		return errors.New("Merge store '" + store.Id + "' failed: not a VALUES store")
 	}
 	for k, v := range values {
 		store.Records[k] = v
@@ -95,10 +95,10 @@ func (store *Store) Merge(values map[string]interface{}, source string) error {
 }
 
 func (store *Store) Path() string {
-	path := store.Name
+	path := store.Id
 	parent := store.parent
 	for parent != nil {
-		path = parent.Name + "." + path
+		path = parent.Id + "." + path
 		parent = parent.parent
 	}
 	return path
@@ -107,14 +107,14 @@ func (store *Store) Path() string {
 func (store *Store) FindOrPanic(path string) *Store {
 	s := store.Find(path)
 	if s == nil {
-		panic("Find on store '" + store.Name + "' failed: Find path '" + path + "' failed")
+		panic("Find on store '" + store.Id + "' failed: Find path '" + path + "' failed")
 	}
 	return s
 }
 
 func (store *Store) Find(path string) *Store {
 	chunks := strings.Split(path, ".")
-	if(len(chunks) < 1 || chunks[0] != store.Name) {
+	if(len(chunks) < 1 || chunks[0] != store.Id) {
 		return nil
 	}
 

@@ -1,12 +1,12 @@
 
 // first create the todos table
-{"Method":0, "Path":"root", "Name":"todos"}
+{"Method":0, "Path":"root", "Id":"todos"}
 
 // now we can insert into it
-{"Method":0, "Path":"root.todos", "Name":"1", "Type":1}
-{"Method":0, "Path":"root.todos", "Name":"2", "Type":1}
-{"Method":0, "Path":"root.todos", "Name":"3", "Type":1}
-{"Method":0, "Path":"root.todos", "Name":"4", "Type":1}
+{"Method":0, "Path":"root.todos", "Id":"1", "Type":1}
+{"Method":0, "Path":"root.todos", "Id":"2", "Type":1}
+{"Method":0, "Path":"root.todos", "Id":"3", "Type":1}
+{"Method":0, "Path":"root.todos", "Id":"4", "Type":1}
 
 // now we can update or merge
 {"Method":2, "Path":"root.todos.1", "Values":{"Title":"test item 1", "Done":false}}
@@ -18,13 +18,13 @@
 {"Method":1, "Path":"root.todos.4"}
 
 // create a schema with some tables
-{"Method":0, "Path":"root", "Name":"multum"}
-{"Method":0, "Path":"root.multum", "Name":"drug_name"}
-{"Method":0, "Path":"root.multum", "Name":"main_multum_drug_code"}
-{"Method":0, "Path":"root.multum", "Name":"product_strength"}
+{"Method":0, "Path":"root", "Id":"multum"}
+{"Method":0, "Path":"root.multum", "Id":"drug_name"}
+{"Method":0, "Path":"root.multum", "Id":"main_multum_drug_code"}
+{"Method":0, "Path":"root.multum", "Id":"product_strength"}
 
 // insert and then update with data
-{"Method":0, "Path":"root.multum.drug_name", "Name":"1", "Type":1}
+{"Method":0, "Path":"root.multum.drug_name", "Id":"1", "Type":1}
 {"Method":2, "Path":"root.multum.drug_name.1", "Values":{"drug_name":"Valium", "is_obsolete":false}}
 
 // merge only works on VALUES store

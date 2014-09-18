@@ -31,7 +31,7 @@ var mixin = {
 		if(!s) {
 			s = this.store.Find(path);
 			if(!s)
-				throw("Grab failed: Unable to find path '" + path + "' in store '" + this.store.Name + "'");
+				throw("Grab failed: Unable to find path '" + path + "' in store '" + this.store.Id + "'");
 
 			s.addListener('CHANGE', this.storeUpdated);
 			this._grabs[path] = s;

@@ -13,12 +13,12 @@ function UndbSocket(store, uri) {
 		var o = {
 			Method: op.Method,
 			Path: op.Path,
-			Name: op.Name,
+			Id: op.Id,
 			Type: op.Type,
 			Values: op.Values
 		};
 		var msg = JSON.stringify([o]);
-//		console.log('send: '+msg);
+		console.log('send: '+msg);
 		ws.send(msg);
 	};
 
@@ -39,7 +39,7 @@ function UndbSocket(store, uri) {
 	};
 
 	ws.onmessage = function(msg) {
-//		console.log('recv: '+msg.data)
+		console.log('recv: '+msg.data)
 
 		var oplist = JSON.parse(msg.data);
 		var err;

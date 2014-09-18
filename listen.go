@@ -20,7 +20,7 @@ func (store *Store) Emit(op *Op, source string) {
 
 	o.changesource = source
 
-	path := s.Name
+	path := s.Id
 
 	for s != nil {
 		o.Path = path
@@ -29,7 +29,7 @@ func (store *Store) Emit(op *Op, source string) {
 		}
 		s = s.parent
 		if s != nil {
-			path = s.Name + "." + path
+			path = s.Id + "." + path
 		}
 	}
 }

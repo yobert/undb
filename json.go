@@ -55,7 +55,7 @@ func (store *Store) Instruct(buf *[]Op) error {
 			o := Op{
 				Method: INSERT,
 				Path: path,
-				Name: vs.Name,
+				Id: vs.Id,
 				Type: vs.Type,
 			}
 			*buf = append(*buf, o)
@@ -87,6 +87,3 @@ func (store *Store) Instruct(buf *[]Op) error {
 	return nil
 }
 
-//			if k != v.Name {
-//				return errors.New("Instruct() failed: data failure, key '" + k + "' != Name '" + v.Name + "'")
-//			}

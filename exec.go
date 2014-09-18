@@ -28,7 +28,7 @@ type Op struct {
 	Method OpMethodType
 	Path string
 
-	Name	string `json:"Name,omitempty"`
+	Id	string `json:"Id,omitempty"`
 	Type	StoreType `json:"Type,omitempty"`
 	Values map[string]interface{} `json:"Values,omitempty"`
 
@@ -51,12 +51,12 @@ func (op *Op) Copy() (out Op) {
 func (store *Store) Exec(op *Op, source string) error {
 	s := store.Find(op.Path)
 	if s == nil {
-		return errors.New("Exec on store '" + store.Name + "' failed: Find path '" + op.Path + "' failed")
+		return errors.New("Exec on store '" + store.Id + "' failed: Find path '" + op.Path + "' failed")
 	}
 
 	switch(op.Method) {
 	case INSERT:
-		return s.Insert(New(op.Name, op.Type), source)
+		return s.Insert(New(op.Id, op.Type), source)
 	case DELETE:
 		s.Delete(source)
 		return nil
@@ -65,6 +65,6 @@ func (store *Store) Exec(op *Op, source string) error {
 	case MERGE:
 		return s.Merge(op.Values, source)
 	}
-	return errors.New("Exec on store '" + store.Name + "' failed: Invalid method: '" + op.Method.String() + "'")
+	return errors.New("Exec on store '" + store.Id + "' failed: Invalid method: '" + op.Method.String() + "'")
 }
 

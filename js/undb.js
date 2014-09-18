@@ -12,8 +12,8 @@ var DELETE = 2;
 var UPDATE = 3;
 var MERGE = 4;
 
-function Store(name, typ) {
-	this.Name = name;
+function Store(id, typ) {
+	this.Id = id;
 	this.Type = typ;
 	this.Records = {};
 	this.Deleted = false;
@@ -29,12 +29,12 @@ Store.prototype.removeListener = events.EventEmitter.prototype.removeListener;
 Store.prototype.emit = events.EventEmitter.prototype.emit;
 
 Store.prototype.Insert = function(insert, source) {
-	if(insert.Name in this.Records)
-		return "Insert into store '" + this.Name + "' failed: '" + insert.Name + "' already exists";
+	if(insert.Id in this.Records)
+		return "Insert into store '" + this.Id + "' failed: '" + insert.Id + "' already exists";
 
 	insert['parent'] = this;
-	this.Records[insert.Name] = insert;
-	this.emitChange({Method: INSERT, Name: insert.Name, Type: insert.Type}, source);
+	this.Records[insert.Id] = insert;
+	this.emitChange({Method: INSERT, Id: insert.Id, Type: insert.Type}, source);
 	return undefined;
 }
 
@@ -46,7 +46,7 @@ Store.prototype.Delete = function(source) {
 
 Store.prototype.Update = function(values, source) {
 	if(this.Type != VALUES)
-		return "Update store '" + this.Name + "' failed: not a VALUES store";
+		return "Update store '" + this.Id + "' failed: not a VALUES store";
 
 	this.Records = values;
 	this.emitChange({Method: UPDATE, Values: values}, source);
@@ -55,7 +55,7 @@ Store.prototype.Update = function(values, source) {
 
 Store.prototype.Merge = function(values, source) {
 	if(this.Type != VALUES)
-		return "Merge store '" + this.Name + "' failed: not a VALUES store";
+		return "Merge store '" + this.Id + "' failed: not a VALUES store";
 
 	for(var k in values)
 		this.Records[k] = values[k];
@@ -65,10 +65,10 @@ Store.prototype.Merge = function(values, source) {
 }
 
 Store.prototype.Path = function() {
-	var p = this.Name;
+	var p = this.Id;
 	var pt = this['parent'];
 	while(pt) {
-		p = pt.Name + '.' + p;
+		p = pt.Id + '.' + p;
 		pt = pt['parent'];
 	}
 	return p;
@@ -76,7 +76,7 @@ Store.prototype.Path = function() {
 
 Store.prototype.Find = function(path) {
 	var chunks = path.split(/\./);
-	if(!chunks.length || chunks[0] != this.Name) {
+	if(!chunks.length || chunks[0] != this.Id) {
 		return undefined;
 	}
 
@@ -97,7 +97,7 @@ Store.prototype.FindOrThrow = function(path) {
 	var s = this.Find(path);
 
 	if(!s)
-		throw("Find on store '" + this.Name + "' failed: Find path '" + path + "' failed");
+		throw("Find on store '" + this.Id + "' failed: Find path '" + path + "' failed");
 
 	return s;
 }
@@ -111,11 +111,11 @@ Store.prototype.Seq = function() {
 Store.prototype.Exec = function(op, changesource) {
 	var s = this.Find(op.Path);
 	if(!s)
-		return "Exec on store '" + this.Name + "' failed: Find path '" + op.Path + "' failed";
+		return "Exec on store '" + this.Id + "' failed: Find path '" + op.Path + "' failed";
 
 	switch(op.Method) {
 	case INSERT:
-		return s.Insert(new Store(op.Name, op.Type), changesource);
+		return s.Insert(new Store(op.Id, op.Type), changesource);
 	case DELETE:
 		return s.Delete(changesource);
 	case UPDATE:
@@ -123,25 +123,25 @@ Store.prototype.Exec = function(op, changesource) {
 	case MERGE:
 		return s.Merge(op.Values, changesource);
 	}
-	return "Exec on store '" + this.Name + "' failed: Invalid method: '" + op.Method + "'";
+	return "Exec on store '" + this.Id + "' failed: Invalid method: '" + op.Method + "'";
 }
 
 Store.prototype.emitChange = function(op, changesource) {
 	var s = this;
-	var path = s.Name;
+	var path = s.Id;
 
 	while(s) {
 		s.emit('CHANGE', {
 			Method: op.Method,
 			Path: path,
-			Name: op.Name,
+			Id: op.Id,
 			Type: op.Type,
 			Values: op.Values,
 			changesource: changesource
 		});
 		s = s['parent'];
 		if(s) {
-			path = s.Name + '.' + path;
+			path = s.Id + '.' + path;
 		}
 	}
 }

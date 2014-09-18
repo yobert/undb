@@ -42,9 +42,9 @@ func (store *Store) Websocket() func(*websocket.Conn) {
 		next_ws_id++;
 		ws_id := fmt.Sprintf("ws-%d", next_ws_id);
 
-		fmt.Println("Store '" + store.Name + "': websocket opened (" + ws_id + ")")
+		fmt.Println("Store '" + store.Id + "': websocket opened (" + ws_id + ")")
 		defer ws.Close()
-		defer fmt.Println("Store '" + store.Name + "': websocket closed")
+		defer fmt.Println("Store '" + store.Id + "': websocket closed")
 
 		var ops []Op
 		opchan := make(chan Op, 0)
