@@ -1,3 +1,4 @@
+var tools = require('github.com/yobert/pkunk/js/tools');
 
 function UndbSocket(store, uri) {
 	var ws = new WebSocket(uri);
@@ -5,6 +6,8 @@ function UndbSocket(store, uri) {
 
 	var firstmessage = false;
 	var t = this;
+
+	var softerror;
 
 	var onchange = function(op) {
 		if(op.changesource && op.changesource == ws_id)
@@ -31,17 +34,24 @@ function UndbSocket(store, uri) {
 		store.removeListener('CHANGE', onchange);
 		console.log("websocket closed");
 		if(t.onClose)
-			t.onClose();
+			t.onClose(softerror);
+
+		softerror = undefined;
 	};
 
-	ws.onerror = function(err) {
-		console.log("websocket error: "+err)
-	};
+	//ws.onerror = function(err) {
+	//	console.log("websocket error");
+	//};
 
 	ws.onmessage = function(msg) {
 		console.log('recv: '+msg.data)
 
 		var oplist = JSON.parse(msg.data);
+		if(oplist && oplist.Error) {
+			softerror = oplist.Error;
+			return;
+		}
+
 		var err;
 		for(var i in oplist) {
 			err = store.Exec(oplist[i], ws_id);

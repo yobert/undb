@@ -4,6 +4,7 @@ import (
 	"github.com/gorilla/websocket"
 	"encoding/json"
 	"fmt"
+//	"time"
 )
 
 func (store *Store) ws_setup(ops *[]Op, opchan chan Op) {
@@ -54,11 +55,15 @@ func (store *Store) Websocket(ws *websocket.Conn, ws_id string) {
 	}
 	ws.WriteMessage(websocket.TextMessage, j)
 
+//	time.Sleep(time.Second)
+
 	go func() {
 		defer close(opchan)
 		defer store.ws_cleanup(opchan) // double cleanup is ok
 
 		for {
+//			time.Sleep(time.Second)
+
 			_, msgdata, err := ws.ReadMessage()
 			if err != nil {
 				//fmt.Println(err.Error()) // don't really care
@@ -87,6 +92,8 @@ func (store *Store) Websocket(ws *websocket.Conn, ws_id string) {
 		if op.changesource == ws_id {
 			continue
 		}
+
+//		time.Sleep(time.Second)
 
 		opslice := []Op{op}
 		j, err := json.Marshal(&opslice)
