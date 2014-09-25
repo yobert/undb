@@ -10,31 +10,47 @@ var mixin = {
 	componentWillMount: function() {
 		this._grabs = {};
 	},
+
 	componentWillUnmount: function() {
-		var s;
-		for(var path in this._grabs) {
-			s = this._grabs[path];
-			s.removeListener('CHANGE', this.storeUpdated);
+		var s, storename, path;
+		for(storename in this._grabs) {
+			for(path in this._grabs[storename]) {
+				s = this._grabs[storename][path];
+				s.removeListener('CHANGE', this.storeUpdated);
+			}
 		}
 		delete this._grabs;
 	},
+
 	storeUpdated: function() {
 		if(this.isMounted()) {
 			this.forceUpdate(this.storeUpdateFinished);
 		}
 	},
+
 	grab: function(path) {
 		if(!this.store)
 			throw('grab() called before this.store set');
 
-		var s = this._grabs[path];
+		return this.grabFrom(this.store, path);
+	},
+
+	grabFrom: function(store, path) {
+		var storename = store.Id;
+		var gs = this._grabs[storename];
+		if(!gs) {
+			gs = {};
+			this._grabs[storename] = gs;
+		}
+
+		var s = gs[path];
 		if(!s) {
-			s = this.store.Find(path);
+			s = store.Find(path);
 			if(!s)
-				throw("Grab failed: Unable to find path '" + path + "' in store '" + this.store.Id + "'");
+				throw("Grab failed: Unable to find path '" + path + "' in store '" + store.Id + "'");
 
 			s.addListener('CHANGE', this.storeUpdated);
-			this._grabs[path] = s;
+			gs[path] = s;
 		}
 
 		return s;
