@@ -166,6 +166,25 @@ Store.prototype.each = function(cb) {
 	throw("each() on store '" + this.Id + "' failed: Invalid Type: '" + this.Type + "'");
 }
 
+Store.prototype.sorted = function(cb, sortcb) {
+	var k, v;
+	if(this.Type == STORES) {
+		var keys = [];
+		for(k in this.Records) {
+			keys.push(k);
+		}
+		keys.sort(sortcb);
+		var len = keys.length;
+		for(var i = 0; i < len; i++) {
+			k = keys[i];
+			v = this.Records[k];
+			cb(v, v.Records);
+		}
+		return;
+	}
+	throw("sorted() on store '" + this.Id + "' failed: Invalid Type: '" + this.Type + "'");
+}
+
 module.exports = {
 	STORES: STORES,
 	VALUES: VALUES,

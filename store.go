@@ -34,6 +34,7 @@ type Store struct {
 
 	lock sync.RWMutex	`json:-`
 	listeners map[chan Op]struct{}
+	dirty bool
 }
 
 func (store *Store) Lock() {

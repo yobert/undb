@@ -23,6 +23,11 @@ func (store *Store) Emit(op *Op, source string) {
 	path := s.Id
 
 	for s != nil {
+
+		if s.parent == nil {
+			s.dirty = true
+		}
+
 		o.Path = path
 		for c := range s.listeners {
 			c<-o
