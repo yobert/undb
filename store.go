@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	//"log"
 )
 
 type StoreType int
@@ -28,7 +29,7 @@ type Store struct {
 	Records map[string]interface{}
 	Deleted bool
 
-	next int
+	last int
 	parent *Store
 
 	lock sync.RWMutex	`json:-`
@@ -61,6 +62,16 @@ func (store *Store) Insert(insert *Store, source string) error {
 	_, exists := store.Records[insert.Id]
 	if exists {
 		return errors.New("Insert into store '" + store.Id + "' failed: '" + insert.Id + "' already exists")
+	}
+
+	// hack around incrementing .next when loading a db from disk.
+	// ids generated in javascript will have strings in them so they're ok
+	i, err := strconv.Atoi(insert.Id)
+	if err == nil {
+		if i > store.last {
+			store.last = i
+			//log.Println("insert on store " + store.Id + " increased last to", store.last)
+		}
 	}
 
 	insert.parent = store
@@ -141,7 +152,6 @@ func (store *Store) Find(path string) *Store {
 }
 
 func (store *Store) Seq() string {
-	store.next++
-	return strconv.Itoa(store.next)
+	return strconv.Itoa(store.last + 1)
 }
 

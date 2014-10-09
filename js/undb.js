@@ -104,8 +104,9 @@ Store.prototype.FindOrThrow = function(path) {
 
 Store.prototype.Seq = function() {
 	this.next++;
-	// sloppy hack for the moment
-	return('jsid_' + new Date().getTime() + this.next + Math.floor(Math.random() * 100000));
+	// sloppy hack for the moment. has the cool side effect that sorting by ID also sorts by
+	// date created. TODO: incorporate session id in here somewhere
+	return('jsid_' + new Date().getTime() + '_' + this.next + '_' + Math.floor(Math.random() * 1000));
 }
 
 Store.prototype.Exec = function(op, changesource) {

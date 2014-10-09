@@ -21,18 +21,18 @@ function UndbSocket(store, uri) {
 			Values: op.Values
 		};
 		var msg = JSON.stringify([o]);
-		console.log('send: '+msg);
+		//console.log('send: '+msg);
 		ws.send(msg);
 	};
 
 	ws.onopen = function() {
-		console.log("websocket open");
+		//console.log("websocket open");
 		store.addListener('CHANGE', onchange);
 	};
 
 	ws.onclose = function() {
 		store.removeListener('CHANGE', onchange);
-		console.log("websocket closed");
+		//console.log("websocket closed");
 		if(t.onClose)
 			t.onClose(softerror);
 
@@ -44,7 +44,7 @@ function UndbSocket(store, uri) {
 	//};
 
 	ws.onmessage = function(msg) {
-		console.log('recv: '+msg.data)
+		//console.log('recv: '+msg.data)
 
 		var oplist = JSON.parse(msg.data);
 		if(oplist && oplist.Error) {
