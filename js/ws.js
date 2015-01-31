@@ -4,6 +4,8 @@ function UndbSocket(store, uri) {
 	var ws = new WebSocket(uri);
 	var ws_id = 'server-ws';
 
+	this.sock = ws;
+
 	var firstmessage = false;
 	var t = this;
 
