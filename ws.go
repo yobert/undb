@@ -41,7 +41,7 @@ func (store *Store) Websocket(ws *websocket.Conn, ws_id string) {
 	defer fmt.Println("Store '" + store.Id + "': websocket closing")
 
 	var ops []Op
-	opchan := make(chan Op, 0)
+	opchan := make(chan Op, 8192)
 
 	// this logic is tricky.  take care with these
 	// locks and with defer.  lock/unlock is required for
