@@ -4,6 +4,7 @@ import (
 	"github.com/gorilla/websocket"
 	"encoding/json"
 	"fmt"
+	"log"
 //	"time"
 )
 
@@ -64,11 +65,14 @@ func (store *Store) Websocket(ws *websocket.Conn, ws_id string) {
 		for {
 //			time.Sleep(time.Second)
 
+			log.Println("receiving message")
 			_, msgdata, err := ws.ReadMessage()
 			if err != nil {
-				//fmt.Println(err.Error()) // don't really care
+				fmt.Println(err.Error())
 				return
 			}
+
+			log.Println("receiving message complete")
 
 			var opslice []Op
 			err = json.Unmarshal(msgdata, &opslice)
@@ -100,9 +104,12 @@ func (store *Store) Websocket(ws *websocket.Conn, ws_id string) {
 		if err != nil {
 			panic(err)
 		}
+		log.Println("writing message")
 		err = ws.WriteMessage(websocket.TextMessage, j)
+		log.Println("writing message complete")
 		if err != nil {
-			panic(err)
+			log.Println(err)
+			return
 		}
 	}
 }
