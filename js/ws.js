@@ -10,6 +10,7 @@ function UndbSocket(store, uri) {
 	var t = this;
 
 	var softerror;
+	var do_pings = false;
 
 	var onchange = function(op) {
 		if(op.changesource && op.changesource == ws_id)
@@ -27,9 +28,20 @@ function UndbSocket(store, uri) {
 		ws.send(msg);
 	};
 
+	var ping = function() {
+		if(do_pings) {
+			ws.send(JSON.stringify([]));
+		}
+
+		setTimeout(ping, 1000);
+	};
+
+	ping();
+
 	ws.onopen = function() {
 		//console.log("websocket open");
 		store.addListener('CHANGE', onchange);
+		do_pings = true;
 	};
 
 	ws.onclose = function() {
@@ -39,6 +51,7 @@ function UndbSocket(store, uri) {
 			t.onClose(softerror);
 
 		softerror = undefined;
+		do_pings = false;
 	};
 
 	//ws.onerror = function(err) {
