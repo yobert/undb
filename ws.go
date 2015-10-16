@@ -77,7 +77,8 @@ func (store *Store) Websocket(ws *websocket.Conn, ws_id string) {
 			var opslice []Op
 			err = json.Unmarshal(msgdata, &opslice)
 			if err != nil {
-				panic(err)
+				log.Println("message unmarshal error", err)
+				continue
 			}
 
 			err = store.ws_exec(opslice, ws_id)
