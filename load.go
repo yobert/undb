@@ -1,9 +1,9 @@
 package undb
 
 import (
-	"log"
-	"io/ioutil"
 	"encoding/json"
+	"io/ioutil"
+	"log"
 )
 
 func Load(path string) (*Store, error) {
@@ -33,7 +33,7 @@ func Load(path string) (*Store, error) {
 		}
 	}
 
-	log.Println("db load('" + path + "') success", len(ops), "ops", len(jsonbytes), "bytes")
+	log.Println("db load('"+path+"') success", len(ops), "ops", len(jsonbytes), "bytes")
 	db.dirty = false
 	return db, nil
 }

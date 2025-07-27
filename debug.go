@@ -1,8 +1,8 @@
 package undb
 
 import (
-	"encoding/json"
 	"bytes"
+	"encoding/json"
 )
 
 func (s *Store) DebugString() string {
@@ -14,4 +14,3 @@ func (s *Store) DebugString() string {
 	json.Indent(&out, b, "", "\t")
 	return out.String()
 }
-

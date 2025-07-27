@@ -1,11 +1,12 @@
 package undb
 
 import (
-	"github.com/gorilla/websocket"
 	"encoding/json"
 	"fmt"
 	"log"
-//	"time"
+
+	"github.com/gorilla/websocket"
+	// "time"
 )
 
 func (store *Store) ws_setup(ops *[]Op, opchan chan Op) {
@@ -23,7 +24,7 @@ func (store *Store) ws_cleanup(opchan chan Op) {
 	store.Unlisten(opchan)
 }
 
-func (store* Store) ws_exec(ops []Op, source string) error {
+func (store *Store) ws_exec(ops []Op, source string) error {
 	store.Lock()
 	defer store.Unlock()
 
@@ -56,23 +57,23 @@ func (store *Store) Websocket(ws *websocket.Conn, ws_id string) {
 	}
 	ws.WriteMessage(websocket.TextMessage, j)
 
-//	time.Sleep(time.Second)
+	//	time.Sleep(time.Second)
 
 	go func() {
 		defer close(opchan)
 		defer store.ws_cleanup(opchan) // double cleanup is ok
 
 		for {
-//			time.Sleep(time.Second)
+			//			time.Sleep(time.Second)
 
-			log.Println("receiving message")
+			//log.Println("receiving message")
 			_, msgdata, err := ws.ReadMessage()
 			if err != nil {
 				fmt.Println(err.Error())
 				return
 			}
 
-			log.Println("receiving message complete")
+			//log.Println("receiving message complete")
 
 			var opslice []Op
 			err = json.Unmarshal(msgdata, &opslice)
@@ -86,7 +87,7 @@ func (store *Store) Websocket(ws *websocket.Conn, ws_id string) {
 				panic(err)
 			}
 		}
-	}();
+	}()
 
 	for {
 		op, ok := <-opchan
@@ -98,20 +99,19 @@ func (store *Store) Websocket(ws *websocket.Conn, ws_id string) {
 			continue
 		}
 
-//		time.Sleep(time.Second)
+		//		time.Sleep(time.Second)
 
 		opslice := []Op{op}
 		j, err := json.Marshal(&opslice)
 		if err != nil {
 			panic(err)
 		}
-		log.Println("writing message")
+		//log.Println("writing message")
 		err = ws.WriteMessage(websocket.TextMessage, j)
-		log.Println("writing message complete")
+		//log.Println("writing message complete")
 		if err != nil {
 			log.Println(err)
 			return
 		}
 	}
 }
-

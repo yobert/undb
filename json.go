@@ -54,9 +54,9 @@ func (store *Store) Instruct(buf *[]Op) error {
 			}
 			o := Op{
 				Method: INSERT,
-				Path: path,
-				Id: vs.Id,
-				Type: vs.Type,
+				Path:   path,
+				Id:     vs.Id,
+				Type:   vs.Type,
 			}
 			*buf = append(*buf, o)
 
@@ -68,7 +68,7 @@ func (store *Store) Instruct(buf *[]Op) error {
 	} else if store.Type == VALUES {
 		o := Op{
 			Method: UPDATE,
-			Path: path,
+			Path:   path,
 			Values: store.Records,
 		}
 		*buf = append(*buf, o)
@@ -79,11 +79,10 @@ func (store *Store) Instruct(buf *[]Op) error {
 	if store.Deleted {
 		o := Op{
 			Method: DELETE,
-			Path: path,
+			Path:   path,
 		}
 		*buf = append(*buf, o)
 	}
 
 	return nil
 }
-

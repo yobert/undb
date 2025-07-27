@@ -1,17 +1,22 @@
 package undb
 
 import (
-	"errors"
 	"encoding/json"
+	"errors"
 )
 
 type OpMethodType int
+
 func (method OpMethodType) String() string {
 	switch method {
-	case INSERT: return "INSERT"
-	case DELETE: return "DELETE"
-	case UPDATE: return "UPDATE"
-	case MERGE: return "MERGE"
+	case INSERT:
+		return "INSERT"
+	case DELETE:
+		return "DELETE"
+	case UPDATE:
+		return "UPDATE"
+	case MERGE:
+		return "MERGE"
 	}
 	return "INVALID"
 }
@@ -26,10 +31,10 @@ const (
 
 type Op struct {
 	Method OpMethodType
-	Path string
+	Path   string
 
-	Id	string `json:"Id,omitempty"`
-	Type	StoreType `json:"Type,omitempty"`
+	Id     string                 `json:"Id,omitempty"`
+	Type   StoreType              `json:"Type,omitempty"`
 	Values map[string]interface{} `json:"Values,omitempty"`
 
 	changesource string
@@ -54,7 +59,7 @@ func (store *Store) Exec(op *Op, source string) error {
 		return errors.New("Exec on store '" + store.Id + "' failed: Find path '" + op.Path + "' failed")
 	}
 
-	switch(op.Method) {
+	switch op.Method {
 	case INSERT:
 		return s.Insert(New(op.Id, op.Type), source)
 	case DELETE:
@@ -67,4 +72,3 @@ func (store *Store) Exec(op *Op, source string) error {
 	}
 	return errors.New("Exec on store '" + store.Id + "' failed: Invalid method: '" + op.Method.String() + "'")
 }
-

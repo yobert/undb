@@ -1,8 +1,8 @@
 package undb
 
 import (
-	"time"
 	"log"
+	"time"
 )
 
 func (store *Store) Snapshots(path string, sleep time.Duration) {
@@ -15,4 +15,3 @@ func (store *Store) Snapshots(path string, sleep time.Duration) {
 		}
 	}
 }
-

@@ -9,10 +9,13 @@ import (
 )
 
 type StoreType int
+
 func (s StoreType) String() string {
 	switch s {
-	case STORES: return "STORES"
-	case VALUES: return "VALUES"
+	case STORES:
+		return "STORES"
+	case VALUES:
+		return "VALUES"
 	}
 	return "INVALID"
 }
@@ -24,17 +27,17 @@ const (
 )
 
 type Store struct {
-	Id string
-	Type StoreType
+	Id      string
+	Type    StoreType
 	Records map[string]interface{}
 	Deleted bool
 
-	last int
+	last   int
 	parent *Store
 
-	lock sync.RWMutex	`json:-`
+	lock      sync.RWMutex `json:-`
 	listeners map[chan Op]struct{}
-	dirty bool
+	dirty     bool
 }
 
 func (store *Store) Lock() {
@@ -52,8 +55,8 @@ func (store *Store) RUnlock() {
 
 func New(id string, typ StoreType) *Store {
 	s := Store{
-		Id: id,
-		Type: typ,
+		Id:      id,
+		Type:    typ,
 		Records: make(map[string]interface{}),
 	}
 	return &s
@@ -77,7 +80,7 @@ func (store *Store) Insert(insert *Store, source string) error {
 
 	insert.parent = store
 	store.Records[insert.Id] = insert
-	store.Emit(&Op{Method: INSERT, Id: insert.Id, Type: insert.Type}, source);
+	store.Emit(&Op{Method: INSERT, Id: insert.Id, Type: insert.Type}, source)
 	return nil
 }
 
@@ -126,7 +129,7 @@ func (store *Store) FindOrPanic(path string) *Store {
 
 func (store *Store) Find(path string) *Store {
 	chunks := strings.Split(path, ".")
-	if(len(chunks) < 1 || chunks[0] != store.Id) {
+	if len(chunks) < 1 || chunks[0] != store.Id {
 		return nil
 	}
 
@@ -155,4 +158,3 @@ func (store *Store) Find(path string) *Store {
 func (store *Store) Seq() string {
 	return strconv.Itoa(store.last + 1)
 }
-

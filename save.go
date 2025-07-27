@@ -1,9 +1,9 @@
 package undb
 
 import (
-	"log"
-	"io/ioutil"
 	"encoding/json"
+	"io/ioutil"
+	"log"
 )
 
 func (store *Store) Save(path string) {
@@ -26,6 +26,6 @@ func (store *Store) Save(path string) {
 		return
 	}
 
-	log.Println("db save('" + path + "') success", len(ops), "ops", len(jsonbytes), "bytes")
+	log.Println("db save('"+path+"') success", len(ops), "ops", len(jsonbytes), "bytes")
 	store.dirty = false
 }

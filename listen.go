@@ -30,7 +30,7 @@ func (store *Store) Emit(op *Op, source string) {
 
 		o.Path = path
 		for c := range s.listeners {
-			c<-o
+			c <- o
 		}
 		s = s.parent
 		if s != nil {
@@ -38,4 +38,3 @@ func (store *Store) Emit(op *Op, source string) {
 		}
 	}
 }
-
